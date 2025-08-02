@@ -69,10 +69,11 @@ scrapy startproject amazon_jobs
 
 Project Structure:
 
-```markdown
 amazon_jobs/
 ├── .gitignore
 ├── scrapy.cfg
+├── README.md
+├── jobs.json
 ├── amazon_jobs/
 │   ├── __init__.py
 │   ├── items.py
@@ -80,5 +81,7 @@ amazon_jobs/
 │   ├── pipelines.py
 │   ├── settings.py
 │   └── spiders/
-│       └── __init__.py
+│       ├── __init__.py
+│       └── amazon.py
+
 ```
