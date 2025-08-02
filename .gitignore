@@ -1,0 +1,31 @@
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment folders
+.venv/
+venv/
+env/
+ENV/
+
+# Local environment variables
+.env
+*.env
+
+# Scrapy output files
+*.json
+*.csv
+*.xml
+*.jl
+raw_response.*
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# VS Code settings
+.vscode/
+
+# macOS system file
+.DS_Store
