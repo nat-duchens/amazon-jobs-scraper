@@ -1,8 +1,11 @@
-# Amazon Job Listings Scraping
+# Amazon Job Listings Scraping 🕷
 
 Scrapes job listings from the Amazon Software Development job category page.
 
 [Amazon jobs URL](https://www.amazon.jobs/content/en/job-categories/software-development#search)
+
+The code to list jobs using the Scrapy framework is in: 
+[`amazon_spider.py`](amazon_jobs/amazon_jobs/spiders/amazon_spider.py) and the result is stored in [`example_jobs.json`](example_jobs.json).
 
 ---
 
@@ -71,7 +74,7 @@ Develop a Scrapy spider to extract job listing data from the Amazon careers page
    - Ensure the spider can navigate through all available pages.
 
 5. **Save the Data**  
-   - Export the data in structured **JSON** format.
+   - Export the data in structured **JSON** format → **jobs.json**
 
 6. **Handle Dynamic Content (if present)**  
    - If the site uses JavaScript to render data, describe how you would approach this using Scrapy (e.g., using Splash or Selenium integration).
@@ -81,6 +84,8 @@ Develop a Scrapy spider to extract job listing data from the Amazon careers page
 ## Installation & Setup
 
 Install Scrapy via **conda**:
+
+Verify that you already have conda or pip in your pc!
 
 ```bash
 conda install -c conda-forge scrapy
@@ -103,11 +108,11 @@ scrapy startproject amazon_jobs
 ## Project Structure:
 
 ```markdown
-amazon_jobs/ 
+amazon_jobs/ → Root directory
 ├── .gitignore
 ├── README.md
-├── scrapy.cfg
-├── jobs.json
+├── scrapy.cfg 
+├── example_jobs.json # → Example output file from the spider
 ├── images/
 ├── amazon_jobs/
 │   ├── __init__.py
@@ -119,8 +124,8 @@ amazon_jobs/
 │   └── spiders/
 │       ├── __init__.py
 │       ├── __pycache__/
-│       ├── amazon_spider.py # → Control pagination and total number of jobs
-│       └── amazon_jobs_test.py # → Fetch jobs but lacks pagination control
+│       ├── amazon_spider.py # → Main spider with pagination and job count control
+│       └── amazon_jobs_test.py # → Experimental spider, lacks pagination control
 └── .git/
 ```
 ---
