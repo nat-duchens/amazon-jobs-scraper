@@ -2,36 +2,39 @@ import scrapy
 import json
 from datetime import datetime
 
-## Remember not to run the code here, use bash: 'scrapy crawl amazon_jobs -o jobs.json'
+## Remember NOT to run the code here!
+## Use bash an run in root directory: 'scrapy crawl amazon_jobs -o jobs.json'
 
-# To run the spider
+# (CONFIG) → Define the spider for crawling Amazon Jobs API
 class AmazonJobsAPISpider(scrapy.Spider):
     name = "amazon_jobs"
     allowed_domains = ["www.amazon.jobs"]  # Restrict crawling to this domain only
 
     MAX_jobs = 25 # To define a limit of total number of job fetch and control pagination
 
+    # (FETCHING) → Send the initial POST request to the API endpoint
     def start_requests(self):
-        # Base API endpoint
-        self.url = "https://www.amazon.jobs/api/jobs/search?is_als=true"
+        self.url = "https://www.amazon.jobs/api/jobs/search?is_als=true"  # Base API endpoint (found with Devtools)
 
-        # Define headers globally for reuse
+        # (CONFIG) → HTTP headers to simulate a browser
         self.headers = {
             "Content-Type": "application/json",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
         }
 
-        # Request size and start index for pagination
+        # (CONFIG) → Define pagination parameters
         self.size = 20
         self.start_index = 0
         self.job_count = 0 # Counter for total jobs collected
 
-        # Start crawling with initial index
+        # (FETCHING) → Start crawling with initial index
         yield self.build_request(self.start_index)
 
     # Function to construct and return a request with a given pagination index
     def build_request(self, start_index):
-        payload = {
+
+        # (CLEANING and STRUCTURING) → Prepare JSON payload to filter jobs (US + Software Development)
+        payload = { 
             "accessLevel": "EXTERNAL",
             "contentFilterFacets": [{"name": "primarySearchLabel", "requestedFacetCount": 9999}],
             "excludeFacets": [
@@ -50,41 +53,45 @@ class AmazonJobsAPISpider(scrapy.Spider):
             ]],
             "query": "",
             "size": self.size,
-            "start": start_index,  # Inject pagination start index
+            "start": start_index,  # (PAGINATION) → Set the starting index for the request
             "treatment": "OM",
             "sort": {"sortOrder": "DESCENDING", "sortType": "SCORE"}
         }
 
+        # (FETCHING) → Return the constructed POST request with callback and pagination context
         return scrapy.Request(
             url=self.url,
             method="POST",
             body=json.dumps(payload),
             headers=self.headers,
             callback=self.parse,
-            cb_kwargs={"start_index": start_index}  # Pass current index to parse method
+            cb_kwargs={"start_index": start_index}  # (PAGINATION) → Pass current index to parse method
         )
-
+    
+    # (PARSING and EXTRACTION) → Process the API response and extract job data
     def parse(self, response, start_index):
-        data = json.loads(response.text)
+        data = json.loads(response.text) # Load JSON response
 
-        # Retrieve current job results and total count
+        # (EXTRACTION) → Get job listings and total count
         jobs = data.get("searchHits", [])
         total_found = data.get("found", 0)
 
-        # Loop through each job record and yield a structured item
+        # (LOOPING) → Iterate over each job entry
         for job in jobs:
             if self.job_count >= self.MAX_jobs:
-                return  # Stop yielding once limit is hit
+                return  # (CONTROL) → Stop if the job limit is reached
 
             fields = job.get("fields", {})
-            job_id = fields.get("artJobId", [""])[0]
-            posted_timestamp = fields.get("updatedDate", [""])[0]
+            job_id = fields.get("icimsJobId", [""])[0] # (EXTRACTION) → Get the job ID 
+            posted_timestamp = fields.get("updatedDate", [""])[0] # (EXTRACTION) →Get posted timestamp
 
+            # (CLEANING) → Convert timestamp to readable ISO date
             try:
                 posted_date = datetime.utcfromtimestamp(int(posted_timestamp)).isoformat()
             except:
                 posted_date = ""
 
+            # (STRUCTURING) → Yield a clean job object with relevant fields
             yield {
                 "Job Title": fields.get("title", [""])[0],
                 "Location": fields.get("normalizedLocation", [""])[0],
@@ -96,6 +103,6 @@ class AmazonJobsAPISpider(scrapy.Spider):
 
             self.job_count += 1 # Increment job counter 
 
-        # Continue pagination only if limit MAX_jobs is not reached, to test
+        # (PAGINATION) → Continue crawling next page if job limit not reached and more jobs are available
         if self.job_count < self.MAX_jobs and start_index + self.size < total_found:
             yield self.build_request(start_index + self.size)    
