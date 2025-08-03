@@ -5,7 +5,7 @@ Scrapes job listings from the Amazon Software Development job category page.
 [Amazon jobs URL](https://www.amazon.jobs/content/en/job-categories/software-development#search)
 
 The code to list jobs using the Scrapy framework is in: 
-[`amazon_spider.py`](amazon_jobs/amazon_jobs/spiders/amazon_spider.py) and the result is stored in [`example_jobs.json`](example_jobs.json).
+[`amazon_spider.py`](amazon_jobs/amazon_jobs/spiders/amazon_spider.py) and the result is stored in [`example_jobs.json`](amazon_jobs/example_jobs.json).
 
 ---
 
@@ -128,4 +128,5 @@ amazon_jobs/ → Root directory
 │       └── amazon_jobs_test.py # → Experimental spider, lacks pagination control
 └── .git/
 ```
+
 ---
