@@ -12,6 +12,8 @@ Scrapy → is an **application framework** for crawling websites and extracting 
 
 While Scrapy was originally designed for **web scraping**, it also supports data extraction via **APIs** and can serve as a general-purpose **web crawler**.
 
+![Web crawling and scraping work scheme](./images/WebCrawling&WebScraping.png)
+
 During my first attempt to crawl and scrape the Amazon Jobs site using Scrapy, I noticed that the HTML of the job listings page **does not contain visible job data** like titles or links (`<a>` tags). These elements are dynamically rendered by **JavaScript**.
 
 By inspecting the site with Chrome DevTools (specifically in the **Network** tab), I discovered that job data is loaded via an **XHR** (XMLHttpRequest) request to an internal API. This happens because modern web applications often use **AJAX techniques**, powered by `XMLHttpRequest` or the newer `fetch()` API, to asynchronously load data from the server without refreshing the page. These background requests typically return **JSON** data.
@@ -22,6 +24,8 @@ In the **Headers** tab of the request, I identified the endpoint: POST https://w
 And in the **Payload** tab, I found the full **JSON request body** used to filter job listings.
 
 This insight allowed me to bypass the rendered HTML and work directly with the underlying API to build a more robust and efficient spider.
+
+![Devtools screenshot showing the Amazon Jobs API](./images/Amazon_Jobs_API.png)
 
 ### Links to Documentation and References
 
@@ -104,6 +108,7 @@ amazon_jobs/
 ├── README.md
 ├── scrapy.cfg
 ├── jobs.json
+├── images/
 ├── amazon_jobs/
 │   ├── __init__.py
 │   ├── items.py
@@ -114,7 +119,8 @@ amazon_jobs/
 │   └── spiders/
 │       ├── __init__.py
 │       ├── __pycache__/
-│       └── amazon_spider.py
+│       ├── amazon_spider.py # → Control pagination and total number of jobs
+│       └── amazon_jobs_test.py # → Fetch jobs but lacks pagination control
 └── .git/
 ```
 ---
