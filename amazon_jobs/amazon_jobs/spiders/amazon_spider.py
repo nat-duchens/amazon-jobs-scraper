@@ -43,7 +43,7 @@ class AmazonJobsAPISpider(scrapy.Spider):
                 {"name": "normalizedCityName", "requestedFacetCount": 9999}
             ]],
             "query": "",
-            "size": 20,
+            "size": 20, # To obtain only the first 20 jobs
             "start": 0,
             "treatment": "OM",
             "sort": {"sortOrder": "DESCENDING", "sortType": "SCORE"}
@@ -65,19 +65,29 @@ class AmazonJobsAPISpider(scrapy.Spider):
         )
 
     def parse(self, response):
-        try:
-            data = json.loads(response.text) # Parse the JSON response
-        except Exception as e:
-            self.logger.error(f"JSON parsing failed: {e}")
-            return
+        import json
+        from datetime import datetime
 
-        # Extract data
-        for job in data.get("jobs", []):
+        # Parse the JSON response body
+        data = json.loads(response.text)
+
+        # Loop through the list of job entries returned by the API
+        for job in data.get("searchHits", []):
+            fields = job.get("fields", {})
+
+            job_id = fields.get("artJobId", [""])[0]  # Extract the real job ID
+            posted_timestamp = fields.get("updatedDate", [""])[0] # Convert the posted date timestamp format
+            try:
+                posted_date = datetime.utcfromtimestamp(int(posted_timestamp)).isoformat() # ISO format 
+            except:
+                posted_date = ""
+
+            # Produce a dictionary with the extracted job data 
             yield {
-                "Job Title": job.get("title"),
-                "Location": job.get("location"),
-                "Job ID": job.get("id"),
-                "Job URL": f"https://www.amazon.jobs/en/jobs/{job.get('id')}",
-                "Description Snippet": job.get("descriptionSnippet"),
-                "Posted Date": job.get("postedDate")
+                "Job Title": fields.get("title", [""])[0],
+                "Location": fields.get("normalizedLocation", [""])[0],
+                "Job ID": job_id,
+                "Job URL": f"https://www.amazon.jobs/en/jobs/{job_id}",
+                "Description Snippet": fields.get("shortDescription", [""])[0],
+                "Posted Date": posted_date
             }
