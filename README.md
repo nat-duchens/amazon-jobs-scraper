@@ -114,6 +114,9 @@ amazon_jobs/ → Root directory
 ├── scrapy.cfg 
 ├── example_jobs.json # → Example output file from the spider
 ├── images/
+├── data_analysis/
+│   ├── README.md
+│   └── simple_json_analysis.py # → Example of a simple data analysis 
 ├── amazon_jobs/
 │   ├── __init__.py
 │   ├── items.py
